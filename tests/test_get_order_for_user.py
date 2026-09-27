@@ -1,24 +1,35 @@
 import allure
-import requests
 
-from data.handlers import Urls, Handlers
+from api import StellarBurgersApi
 from data.ingredients_data import Ingredient
 
 
-@allure.suite("Получение доступных заказов по пользователю")
+@allure.suite("Получение заказов пользователя")
 class TestGetOrderUser:
 
-    @allure.description("")
-    @allure.title("Получение доступных заказов авторизованного пользователя")
+    @allure.title("Получение заказов авторизованного пользователя")
     def test_get_order_user_with_auth(self, create_user):
-        token = {'Authorization': create_user[3]}
-        requests_create_order = requests.post(f"{Urls.MAIN_URL}{Handlers.MAKE_ORDER}", headers=token, data=Ingredient.correct_ingredients_data)
-        response_get_order = requests.get(f"{Urls.MAIN_URL}{Handlers.GET_ORDERS}", headers=token)
-        assert response_get_order.status_code == 200 and response_get_order.json()['orders'][0]['number'] == requests_create_order.json()['order']['number']
+        api = StellarBurgersApi()
+        token = create_user[3]
 
+        create_response = api.create_order(
+            payload=Ingredient.correct_ingredients_data,
+            token=token
+        )
 
-    @allure.description("")
-    @allure.title("Получение заказов пользователя если пользователь не авторизовался")
+        get_response = api.get_user_orders(token)
+
+        assert get_response.status_code == 200
+        assert (
+            get_response.json()["orders"][0]["number"]
+            == create_response.json()["order"]["number"]
+        )
+
+    @allure.title("Получение заказов без авторизации")
     def test_get_order_user_not_auth(self):
-        r = requests.get(f"{Urls.MAIN_URL}{Handlers.GET_ORDERS}")
-        assert r.status_code == 401 and r.json()['message'] == "You should be authorised"
+        api = StellarBurgersApi()
+
+        response = api.get_user_orders("")
+
+        assert response.status_code == 401
+        assert response.json()["message"] == "You should be authorised"

@@ -1,21 +1,28 @@
 import allure
-import requests
 
-from data.handlers import Urls, Handlers
+from api import StellarBurgersApi
 from data.user_data import User
 
 
-@allure.suite('Авторизация пользователя')
-class Testlogin:
+@allure.suite("Авторизация пользователя")
+class TestLogin:
 
-    @allure.description('При авторизация под пользователем, который есть в системе, происходит успешная авторизация')
-    @allure.title('Авторизация под пользователем, который есть в системе')
-    def test_login_user(self):
-        response = requests.post(f'{Urls.MAIN_URL}{Handlers.LOGIN}', data=User.data_correct)
-        assert response.status_code == 200 and response.json().get('success') == True
+    @allure.title("Авторизация существующего пользователя")
+    def test_login_user(self, create_user):
+        api = StellarBurgersApi()
 
-    @allure.description('При авторизация под пользователем с некорректным логином/паролем, срабатывает allert')
-    @allure.title('Авторизация с некорректным логином/паролем')
+        login_data = create_user[2]
+
+        response = api.login_user(login_data)
+
+        assert response.status_code == 200
+        assert response.json().get("success") is True
+
+    @allure.title("Авторизация с некорректным логином и паролем")
     def test_login_user_error(self):
-        response = requests.post(f'{Urls.MAIN_URL}{Handlers.LOGIN}', data=User.data_negative)
-        assert response.status_code == 401 and response.json().get('success') == False
+        api = StellarBurgersApi()
+
+        response = api.login_user(User.data_negative)
+
+        assert response.status_code == 401
+        assert response.json().get("success") is False

@@ -1,39 +1,62 @@
 import allure
-import requests
 
-from data.handlers import Urls, Handlers
+from api import StellarBurgersApi
 from data.user_data import User
 
 
-@allure.suite('Изменение данных пользовователя')
+@allure.suite("Изменение данных пользователя")
 class TestChangingUserData:
 
-    @allure.description("При попытке сменить email у авторизованного пользователя, изменение данных происходит успешно")
     @allure.title("Успешное изменение email авторизованного пользователя")
     def test_changing_user_email_with_auth(self, create_user):
-        payload = {'email': User.create_data_user()["email"]}
-        token = {'Authorization': create_user[3]}
-        r = requests.patch(f"{Urls.MAIN_URL}{Handlers.CHANGE_USER_DATA}", headers=token, data=payload)
-        assert r.status_code == 200 and r.json()['user']['email'] == payload["email"]
+        api = StellarBurgersApi()
+        token = create_user[3]
 
-    @allure.description("При попытке сменить password у авторизованного пользователя, изменение данных происходит успешно")
-    @allure.title("Успешное изменение password авторизованного пользователя")
+        payload = {
+            "email": User.create_data_user()["email"]
+        }
+
+        response = api.change_user_data(token, payload)
+
+        assert response.status_code == 200
+        assert response.json()["user"]["email"] == payload["email"]
+
+    @allure.title("Успешное изменение пароля авторизованного пользователя")
     def test_changing_user_password_with_auth(self, create_user):
-        payload = {'password': User.create_data_user()["password"]}
-        token = {'Authorization': create_user[3]}
-        r = requests.patch(f"{Urls.MAIN_URL}{Handlers.CHANGE_USER_DATA}", headers=token, data=payload)
-        assert r.status_code == 200 and r.json().get("success") is True
+        api = StellarBurgersApi()
+        token = create_user[3]
 
-    @allure.description("При попытке сменить name у авторизованного пользователя, изменение данных происходит успешно")
-    @allure.title("Успешное изменение name авторизованного пользователя")
+        payload = {
+            "password": User.create_data_user()["password"]
+        }
+
+        response = api.change_user_data(token, payload)
+
+        assert response.status_code == 200
+        assert response.json().get("success") is True
+
+    @allure.title("Успешное изменение имени авторизованного пользователя")
     def test_changing_user_name_with_auth(self, create_user):
-        payload = {'name': User.create_data_user()["name"]}
-        token = {'Authorization': create_user[3]}
-        r = requests.patch(f"{Urls.MAIN_URL}{Handlers.CHANGE_USER_DATA}", headers=token, data=payload)
-        assert r.status_code == 200 and r.json()['user']['name'] == payload["name"]
+        api = StellarBurgersApi()
+        token = create_user[3]
 
-    @allure.description("При попытке смены даных пользователя без авторизации, возращает allert")
-    @allure.title("Изменение данных пользователя без авторизацией")
+        payload = {
+            "name": User.create_data_user()["name"]
+        }
+
+        response = api.change_user_data(token, payload)
+
+        assert response.status_code == 200
+        assert response.json()["user"]["name"] == payload["name"]
+
+    @allure.title("Изменение данных пользователя без авторизации")
     def test_changing_user_data_not_auth(self):
-        r = requests.patch(f"{Urls.MAIN_URL}{Handlers.CHANGE_USER_DATA}", data=User.create_data_user())
-        assert r.status_code == 401 and r.json()['message'] == 'You should be authorised'
+        api = StellarBurgersApi()
+
+        response = api.change_user_data(
+            token="",
+            payload=User.create_data_user()
+        )
+
+        assert response.status_code == 401
+        assert response.json()["message"] == "You should be authorised"
