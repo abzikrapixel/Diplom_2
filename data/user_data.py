@@ -14,20 +14,9 @@ class User:
             "name": fake.name()
         }
 
-    data_correct = {
-        "email": "tets_2503@yandex.ru",
-        "password": "password"
-    }
-
     data_negative = {
         "email": "tets_2503123@yandex.ru",
         "password": "password"
-    }
-
-    data_double = {
-        "email": "tets_2503@yandex.ru",
-        "password": "password",
-        "name": "Username"
     }
 
     data_without_email = {
@@ -46,10 +35,4 @@ class User:
         "email": "tets_2503@yandex.ru",
         "password": "password",
         "name": ""
-    }
-
-    data_updated = {
-        "email": "tets_2503@yandex.ru",
-        "password": "password",
-        "name": "Test"
     }

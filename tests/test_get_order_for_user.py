@@ -1,6 +1,5 @@
 import allure
 
-from api import StellarBurgersApi
 from data.ingredients_data import Ingredient
 
 
@@ -8,8 +7,7 @@ from data.ingredients_data import Ingredient
 class TestGetOrderUser:
 
     @allure.title("Получение заказов авторизованного пользователя")
-    def test_get_order_user_with_auth(self, create_user):
-        api = StellarBurgersApi()
+    def test_get_order_user_with_auth(self, api, create_user):
         token = create_user[3]
 
         create_response = api.create_order(
@@ -26,9 +24,7 @@ class TestGetOrderUser:
         )
 
     @allure.title("Получение заказов без авторизации")
-    def test_get_order_user_not_auth(self):
-        api = StellarBurgersApi()
-
+    def test_get_order_user_not_auth(self, api):
         response = api.get_user_orders("")
 
         assert response.status_code == 401

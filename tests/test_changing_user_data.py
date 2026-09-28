@@ -1,6 +1,5 @@
 import allure
 
-from api import StellarBurgersApi
 from data.user_data import User
 
 
@@ -8,8 +7,7 @@ from data.user_data import User
 class TestChangingUserData:
 
     @allure.title("Успешное изменение email авторизованного пользователя")
-    def test_changing_user_email_with_auth(self, create_user):
-        api = StellarBurgersApi()
+    def test_changing_user_email_with_auth(self, api, create_user):
         token = create_user[3]
 
         payload = {
@@ -22,8 +20,7 @@ class TestChangingUserData:
         assert response.json()["user"]["email"] == payload["email"]
 
     @allure.title("Успешное изменение пароля авторизованного пользователя")
-    def test_changing_user_password_with_auth(self, create_user):
-        api = StellarBurgersApi()
+    def test_changing_user_password_with_auth(self, api, create_user):
         token = create_user[3]
 
         payload = {
@@ -36,8 +33,7 @@ class TestChangingUserData:
         assert response.json().get("success") is True
 
     @allure.title("Успешное изменение имени авторизованного пользователя")
-    def test_changing_user_name_with_auth(self, create_user):
-        api = StellarBurgersApi()
+    def test_changing_user_name_with_auth(self, api, create_user):
         token = create_user[3]
 
         payload = {
@@ -50,9 +46,7 @@ class TestChangingUserData:
         assert response.json()["user"]["name"] == payload["name"]
 
     @allure.title("Изменение данных пользователя без авторизации")
-    def test_changing_user_data_not_auth(self):
-        api = StellarBurgersApi()
-
+    def test_changing_user_data_not_auth(self, api):
         response = api.change_user_data(
             token="",
             payload=User.create_data_user()

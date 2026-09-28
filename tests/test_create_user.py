@@ -1,7 +1,6 @@
 import allure
 import pytest
 
-from api import StellarBurgersApi
 from data.user_data import User
 
 
@@ -9,22 +8,14 @@ from data.user_data import User
 class TestCreateUser:
 
     @allure.title("Создание уникального пользователя")
-    def test_create_unique_user(self):
-        api = StellarBurgersApi()
-        payload = User.create_data_user()
-
-        response = api.create_user(payload)
+    def test_create_unique_user(self, unique_user):
+        response = unique_user
 
         assert response.status_code == 200
         assert response.json().get("success") is True
 
-        token = response.json()["accessToken"]
-        api.delete_user(token)
-
     @allure.title("Создание уже зарегистрированного пользователя")
-    def test_create_existing_user(self, create_user):
-        api = StellarBurgersApi()
-
+    def test_create_existing_user(self, api, create_user):
         payload = create_user[1]
 
         response = api.create_user(payload)
@@ -46,10 +37,10 @@ class TestCreateUser:
         ],
     )
     @allure.title("Создание пользователя без обязательного поля")
-    def test_create_user_without_required_field(self, payload):
-        api = StellarBurgersApi()
-
+    def test_create_user_without_required_field(self, api, payload):
         response = api.create_user(payload)
 
         assert response.status_code == 403
-        assert response.json()["message"] == "Email, password and name are required fields"
+        assert response.json()["message"] == (
+            "Email, password and name are required fields"
+        )

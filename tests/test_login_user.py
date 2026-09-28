@@ -1,6 +1,5 @@
 import allure
 
-from api import StellarBurgersApi
 from data.user_data import User
 
 
@@ -8,9 +7,7 @@ from data.user_data import User
 class TestLogin:
 
     @allure.title("Авторизация существующего пользователя")
-    def test_login_user(self, create_user):
-        api = StellarBurgersApi()
-
+    def test_login_user(self, api, create_user):
         login_data = create_user[2]
 
         response = api.login_user(login_data)
@@ -19,9 +16,7 @@ class TestLogin:
         assert response.json().get("success") is True
 
     @allure.title("Авторизация с некорректным логином и паролем")
-    def test_login_user_error(self):
-        api = StellarBurgersApi()
-
+    def test_login_user_error(self, api):
         response = api.login_user(User.data_negative)
 
         assert response.status_code == 401
